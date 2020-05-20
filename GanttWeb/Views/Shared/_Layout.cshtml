@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GanttWeb</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/menu.css" />
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+              crossorigin="anonymous"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+    </environment>
+
+    <script src="~/js/DlhSoft.Data.HTML.Controls.js"></script>
+    <script src="~/js/DlhSoft.ProjectData.GanttChart.HTML.Controls.js"></script>
+    <script src="~/js/DlhSoft.ProjectData.PertChart.HTML.Controls.js"></script>
+</head>
+<body>
+    @if (GanttWeb.Utils.Common.UserJobType != string.Empty)
+    {
+        <div class="wrapper">
+            <!-- Sidebar  -->
+            <nav id="sidebar">
+                <ul class="list-unstyled components">
+
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle">Produzione Gantt</a>
+                        <ul class="collapse list-unstyled show" id="homeSubmenu">
+                            @* carico_lavo, gant_tess, gant_conf, gant_stiro, gant_all *@
+                            <li>
+                                <a class="nav-link text-darkk second" id="carico_lavoro" asp-area="" asp-controller="Home" asp-action="Index">Carico lavoro</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-darkk" id="gant_tess" asp-area="" asp-controller="GanttComponents" asp-action="ScheduleChartViewTess">Tessitura</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-darkk" id="gant_conf" asp-area="" asp-controller="GanttComponents" asp-action="ScheduleChartViewConf">Confezione</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-darkk" id="gant_stiro" asp-area="" asp-controller="GanttComponents" asp-action="ScheduleChartViewStiro">Stireria</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-darkk" id="gant_all" asp-area="" asp-controller="GanttComponents" asp-action="ScheduleChartViewDeptAll">Tutto</a>
+                            </li>
+
+                            <br />
+                            <hr />
+                            <li>
+                                <a class="nav-link text-darkk" id="lout" asp-area="" asp-controller="Login" asp-action="LogOut">Log Out</a>
+                            </li>
+                        </ul>
+                        <br />
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Page Content  -->
+            <div id="content">
+               
+                <div id="main" role="main" class="pb-3">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    }
+    @if (GanttWeb.Utils.Common.UserJobType == string.Empty)
+    {
+        <div id="main" role="main" class="pb-3">
+            @RenderBody()
+        </div>
+    }
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - GanttWeb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <!-- jQuery UI CSS Reference -->
+    <link href="~/css/jquery-ui.css" rel="stylesheet" />
+    <!-- Required jQuery and jQuery UI Javascript references -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"
+            integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
+            crossorigin="anonymous"></script>    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        
+
+
+
+        $(document).ready(function () {
+
+
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            }); 
+
+
+        
+
+            $("#dvc").click(function () {
+                if ($("#dvc").is(':checked')) {
+                    $("[name=mainTable_length]").val("-1").change();
+
+                    if ($("#rdd").is(':checked')) {
+                        $("#rdd").click();
+                    }
+                    $('#th_dvc').click();
+                    $('#th_dvc').click();
+                }
+                else {
+                    $('#th_dvc').click();
+                    $('#th_dvc').click();
+                    $('#th_dprod').click();
+                    $('#th_dprod').click();
+                }
+            })
+
+            $("#rdd").click(function () {
+                if ($("#rdd").is(':checked')) {
+                    $("[name=mainTable_length]").val("-1").change();
+
+                    if ($("#dvc").is(':checked')) {
+                        $("#dvc").click();
+                    }
+                    $('#th_rdd').click();
+                    $('#th_rdd').click();
+                }
+                else {
+                    $('#th_rdd').click();
+                    $('#th_rdd').click();
+                    $('#th_dprod').click();
+                    $('#th_dprod').click();
+                }
+            })
+
+
+
+            $('#aconto').click(function () {
+
+
+                if ($("#aconto").is(':checked')) {
+
+                    if ($("#asaldo").is(':checked')) {
+                        $("#asaldo").click();
+                    }
+                    if ($("#chiuse").is(':checked')) {
+                        $("#chiuse").click();
+                    }
+
+
+                    $("[name=mainTable_length]").val("-1").change();
+
+                    $('.status').each(function () {
+
+                        if ($(this).text() == '1') {
+                            $(this).closest('tr').show();
+                        } else {
+                            $(this).closest('tr').hide();
+                        }
+                    })
+                }
+                else {
+                    $("[name=mainTable_length]").val("10").change();
+
+                    $('.status').each(function () {
+                        $(this).closest('tr').show();
+                    })
+                }
+            });
+
+
+            $('#asaldo').click(function () {
+                if ($("#asaldo").is(':checked')) {
+
+                    if ($("#aconto").is(':checked')) {
+                        $("#aconto").click();
+                    }
+                    if ($("#chiuse").is(':checked')) {
+                        $("#chiuse").click();
+                    }
+
+
+                    $("[name=mainTable_length]").val("-1").change();
+
+                    $('.status').each(function () {
+
+                        if ($(this).text() == '3') {
+                            $(this).closest('tr').show();
+                        } else {
+                            $(this).closest('tr').hide();
+                        }
+                    })
+                }
+                else {
+                    $("[name=mainTable_length]").val("10").change();
+
+                    $('.status').each(function () {
+                        $(this).closest('tr').show();
+                    })
+                }
+            });
+            $('#chiuse').click(function () {
+                if ($("#chiuse").is(':checked')) {
+
+
+
+                    if ($("#aconto").is(':checked')) {
+                        $("#aconto").click();
+                    }
+                    if ($("#asaldo").is(':checked')) {
+                        $("#asaldo").click();
+                    }
+
+
+                    $("[name=mainTable_length]").val("-1").change();
+
+
+                    $('.odd').css('background', '#eef3a0');
+                    $('.even').css('background', '#eef3a0');
+
+
+                    $('.status').each(function () {
+
+                        if ($(this).text() == '2') {
+                            $(this).closest('tr').show();
+                        } else {
+                            $(this).closest('tr').hide();
+                        }
+                    })
+                }
+                else {
+                    //$('.odd').css('background-color', '#f1f1f1');
+                    $('.odd').css('background-color', '#ffffff');
+                    $('.even').css('background-color', '#ffffff');
+
+
+                    $("[name=mainTable_length]").val("10").change();
+
+                    $('.status').each(function () {
+                        $(this).closest('tr').show();
+                    })
+                }
+            });
+
+            //$("#gantt_prod").click(function (e) {
+            //    $('#main').load("/Home/Index");
+            //    return false;
+            //        });
+            //    });
+
+            //$('input[type="checkbox"]').click(function () {
+            //    if ($(this).prop("checked") == true) {
+            //        alert("Checkbox is checked.");
+            //    }
+            //    else if ($(this).prop("checked") == false) {
+            //        alert("Checkbox is unchecked.");
+            //    }
+            //});
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+
+            $('.second').click(function () {
+                $('.second').removeClass('activee');
+                $(this).addClass('activee');
+            });
+
+
+            $('select').on('change', function () {
+                sumTotals();
+            });
+
+
+        });
+
+        function sumTotals() {
+            var sum_qty = 0;
+            $('.qty').each(function () {
+                if (!isNaN($(this).text()) && $(this).text().length != 0 && $(this).closest('tr').css('display') != 'none') {
+                    sum_qty += parseFloat($(this).text());
+                }
+            })
+            $('#qty_sum').text(sum_qty.toLocaleString());
+
+            var sum_car = 0;
+            $('.car').each(function () {
+                if (!isNaN($(this).text()) && $(this).text().length != 0 && $(this).closest('tr').css('display') != 'none') {
+                    sum_car += parseFloat($(this).text());
+                }
+            })
+            $('#car_sum').text(sum_car.toLocaleString());
+
+            var sum_diff = 0;
+            $('.diff').each(function () {
+                if (!isNaN($(this).text()) && $(this).text().length != 0 && $(this).closest('tr').css('display') != 'none') {
+                    sum_diff += parseFloat($(this).text());
+                }
+            })
+            $('#diff_sum').text(sum_diff.toLocaleString());
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

@@ -1,0 +1,435 @@
+﻿@using System.Data
+@model GanttWeb.Models.CaricoViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+<link rel="stylesheet" href="~/css/site.css" />
+<link rel="stylesheet" href="~/css/menu.css" />
+<link href="~/css/jquery-ui.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" />
+
+<style type="text/css">
+
+    table {
+        /*border: 1px solid #808080;*/
+        border-collapse: collapse;
+        padding:20px;
+        z-index:99999;
+            border: none;
+    box-shadow: 1px 1px 3px #b3b3b3;
+    }
+
+        table th {
+            background-color: #323444;
+            color: #fff;
+            font-weight: bold;
+            /*border:none;*/
+            font-size: 10pt;
+        }
+         @* important for * content to be centered *@
+        table th, table td {
+            padding: 5px;
+            border: 1px solid #ccc;
+            align-content:center;
+            border:none;
+        }
+
+        table td{
+            font-size:10pt;
+        }
+
+    .dvc_acc_saldo::after {
+        background-color: #fffb8d !important;
+    }
+
+    .dvc_acc_saldo::before, .rbrdd::before, .rbchiuse::before {
+        background-color:#fff;
+    }
+
+    .rbrdd::after {
+        background-color: #f7c7c7 !important;
+    }
+
+    .rbchiuse::after {
+        background-color: #9decb5 !important;
+    }
+
+    table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd {
+        background-color: #f3f3f3;
+    }
+
+
+    .note {
+        /*width: 100px;*/
+        /*word-break: break-all;*/
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width:150px;
+        max-width:150px;
+    }
+    #note {
+        width:150px;
+        max-width:150px;
+    }
+
+
+</style>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+
+@using (Html.BeginForm("Index", "Home", FormMethod.Get))
+{
+    <nav class="navbar-expand-lg navbar-light bg-light top-bar">
+        <div class="container-fluid">
+
+
+
+
+            <div class="row">
+                <div class="col-sm-1">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <img src="~/img/icons/tools/menu.svg" style="width: 20px; height: 20px; color:white" />
+                    </button>
+                </div>
+                <div class="col-sm-1" style="display: flex;min-width:205px">
+                    <input type="date" name="StartDate" id="StartDate" class="form-control input_user" style="margin-bottom: 5px;" asp-for="StartDate">
+                </div>
+
+                <div class="col-sm-1 col-xs-4" style="        display: flex;
+        min-width: 100px;">
+                    <div class="dpicker">
+                        <button type="submit" name="buttonAccess" class="btn login_btn reloadbtn" asp-area="" asp-controller="Home" asp-action="Index" asp-for="StartDate">Reload</button>
+                    </div>
+                </div>
+
+                <div class="col-sm-1 col-xs-4" style="min-width: 136px;margin-top: 5px;    border-left: 1px solid #e3e3e3;">
+                    <input type="checkbox" class="switch switch--shadow" id="dvc" />
+                    <label for="dvc" class="dvc_acc_saldo"></label>
+                    <span class="swspan">DVC</span>
+                </div>
+                <div class="col-sm-1 col-xs-4" style="min-width: 136px;margin-top: 5px;">
+                    <input type="checkbox" class="switch switch--shadow" id="rdd" />
+                    <label for="rdd" class="rbrdd"></label>
+                    <span class="swspan">RDD</span>
+                </div>
+                <div class="col-sm-1 col-xs-4" style="min-width: 136px;margin-top: 5px;    border-left: 1px solid #e3e3e3;">
+                    <input type="checkbox" class="switch switch--shadow" id="aconto" />
+                    <label for="aconto" class="dvc_acc_saldo"></label>
+                    <span class="swspan">Acconto</span>
+                </div>
+
+                <div class="col-sm-1 col-xs-4" style="min-width: 136px;margin-top: 5px;">
+                    <input type="checkbox" class="switch switch--shadow" id="asaldo" />
+                    <label for="asaldo" class="dvc_acc_saldo"></label>
+                    <span class="swspan">Asaldo</span>
+                </div>
+
+
+                <div class="col-sm-1 col-xs-4" style="min-width: 136px;margin-top: 5px;">
+                    <input type="checkbox" class="switch switch--shadow" id="chiuse" />
+                    <label for="chiuse" class="rbchiuse"></label>
+                    <span class="swspan">Chiuse</span>
+                </div>
+            </div>
+
+
+        </div>
+    </nav>
+    <h3>Carico lavoro</h3>
+    <div class="row">
+        <div class="col-md-12">
+
+            <table class="table display table-striped stripe" id="mainTable" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Commessa</th>
+                        <th>Articole</th>
+                        <th>Linea</th>
+                        <th>Qty</th>
+                        <th>Carico</th>
+                        <th>Diff</th>
+                        <th style="width:120px;">Data Arrivo</th>
+                        <th style="width:120px;" id="th_dprod">Data Inizio Prod</th>
+                        <th style="width:120px;">Data Fine Prod</th>
+                        <th style="width:120px;" id="th_dcon">Data Consegna</th>
+                        <th style="width:120px;" id="th_rdd">Rdd</th>
+                        <th style="width:120px;" id="th_dvc">Dvc</th>
+                        <th id="th_status" style="display:none">Status:</th>
+                        <th id="th_department">Department</th>
+                        <th id="note">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DataRow iRow in GanttWeb.Utils.Common.MyDataSet.Tables[0].Rows)
+                    {
+                        <tr>
+                            <td>@iRow["Commessa"]</td>
+                            <td>@iRow["Articole"]</td>
+                            <td>@iRow["Linea"]</td>
+                            <td class="qty">@iRow["Qty"]</td>
+                            <td class="car">@iRow["Carico"]</td>
+                            <td class="diff">@iRow["Diff"]</td>
+                            <td style="width:120px;">@iRow["Arrivo"]</td>
+                            <td style="width:120px;">@iRow["Produzione"]</td>
+                            <td style="width:120px;">@iRow["Fine"]</td>
+                            <td style="width:120px;">@iRow["Consegia"]</td>
+                            <td style="width:120px;">@iRow["Rdd"]</td>
+                            <td style="width:120px;">@iRow["Dvc"]</td>
+                            <td class="status" style="display:none">@iRow["Status"]</td>
+                            <td>@iRow["Department"]</td>
+                            <td class="note" title="@iRow["Note"]">@iRow["Note"]</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span id="qty_sum" style="margin-left: -7px;"></span></td>
+                        <td><span id="car_sum" style="margin-left: -7px;"></span></td>
+                        <td><span id="diff_sum" style="margin-left: -7px;"></span></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                //$(document).tooltip();
+
+                $('#carico_lavoro').addClass('activee');
+                $('#gant_stiro').removeClass('activee');
+                $('#gant_conf').removeClass('activee');
+                $('#gant_tess').removeClass('activee');
+                $('#gant_all').removeClass('activee');
+
+
+                $("#dvc").click(function () {
+                    if ($("#dvc").is(':checked')) {
+                        $("[name=mainTable_length]").val("-1").change();
+
+                        if ($("#rdd").is(':checked')) {
+                            $("#rdd").click();
+                        }
+                        $('#th_dvc').click();
+                        $('#th_dvc').click();
+                    }
+                    else {
+                        $("[name=mainTable_length]").val("10").change();
+
+                        $('#th_dvc').click();
+                        $('#th_dvc').click();
+                        $('#th_dprod').click();
+                        $('#th_dprod').click();
+                    }
+                });
+                $("#rdd").click(function () {
+                    if ($("#rdd").is(':checked')) {
+                        $("[name=mainTable_length]").val("-1").change();
+
+                        if ($("#dvc").is(':checked')) {
+                            $("#dvc").click();
+                        }
+                        $('#th_rdd').click();
+                        $('#th_rdd').click();
+                    }
+                    else {
+                        $("[name=mainTable_length]").val("10").change();
+
+                        $('#th_rdd').click();
+                        $('#th_rdd').click();
+                        $('#th_dprod').click();
+                        $('#th_dprod').click();
+                    }
+                });
+                $('#aconto').click(function () {
+
+
+                    if ($("#aconto").is(':checked')) {
+
+                        if ($("#asaldo").is(':checked')) {
+                            $("#asaldo").click();
+                        }
+                        if ($("#chiuse").is(':checked')) {
+                            $("#chiuse").click();
+                        }
+
+
+                        $("[name=mainTable_length]").val("-1").change();
+
+                        $('.status').each(function () {
+
+                            if ($(this).text() == '1') {
+                                $(this).closest('tr').show();
+                            } else {
+                                $(this).closest('tr').hide();
+                            }
+                        })
+                    }
+                    else {
+                        $("[name=mainTable_length]").val("10").change();
+
+                        $('.status').each(function () {
+                            $(this).closest('tr').show();
+                        })
+                    }
+                });
+                $('#asaldo').click(function () {
+                    if ($("#asaldo").is(':checked')) {
+
+                        if ($("#aconto").is(':checked')) {
+                            $("#aconto").click();
+                        }
+                        if ($("#chiuse").is(':checked')) {
+                            $("#chiuse").click();
+                        }
+
+
+                        $("[name=mainTable_length]").val("-1").change();
+
+                        $('.status').each(function () {
+
+                            if ($(this).text() == '3') {
+                                $(this).closest('tr').show();
+                            } else {
+                                $(this).closest('tr').hide();
+                            }
+                        })
+                    }
+                    else {
+                        $("[name=mainTable_length]").val("10").change();
+
+                        $('.status').each(function () {
+                            $(this).closest('tr').show();
+                        })
+                    }
+                });
+                $('#chiuse').click(function () {
+                    if ($("#chiuse").is(':checked')) {
+
+
+
+                        if ($("#aconto").is(':checked')) {
+                            $("#aconto").click();
+                        }
+                        if ($("#asaldo").is(':checked')) {
+                            $("#asaldo").click();
+                        }
+
+
+                        $("[name=mainTable_length]").val("-1").change();
+
+
+                        //$('.odd').css('background', '#eef3a0');
+                        //$('.even').css('background', '#eef3a0');
+
+
+                        $('.status').each(function () {
+
+                            if ($(this).text() == '2') {
+                                $(this).closest('tr').show();
+                            } else {
+                                $(this).closest('tr').hide();
+                            }
+                        })
+                    }
+                    else {
+
+                        $("[name=mainTable_length]").val("10").change();
+
+                        $('.status').each(function () {
+                            $(this).closest('tr').show();
+                        })
+                    }
+                });
+
+                //$('.paginate_button').bind("click",function () {
+                //    sumTotals();
+                //})
+
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
+                });
+
+
+
+                $('#mainTable').DataTable({
+                    "aaSorting": [],
+                    responsive: true,
+                    "pagingType": "full_numbers",
+                    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    drawCallback: function () {
+                        $('.paginate_button', this.api().table().container())
+                            .on('click', function () {
+                                sumTotals();
+                            });
+                    }
+
+                });
+
+
+                $('input[type="search"]').bind('input', function () {
+                    sumTotals();
+                });
+
+                sumTotals();
+            });
+
+            function sumTotals() {
+                var sum_qty = 0;
+                $('.qty').each(function () {
+                    if (!isNaN($(this).text()) && $(this).text().length != 0 && $(this).closest('tr').css('display') != 'none') {
+                        sum_qty += parseFloat($(this).text());
+                    }
+                })
+                $('#qty_sum').text(sum_qty.toLocaleString());
+
+                var sum_car = 0;
+                $('.car').each(function () {
+                    if (!isNaN($(this).text()) && $(this).text().length != 0 && $(this).closest('tr').css('display') != 'none') {
+                        sum_car += parseFloat($(this).text());
+                    }
+                })
+                $('#car_sum').text(sum_car.toLocaleString());
+
+                var sum_diff = 0;
+                $('.diff').each(function () {
+                    if (!isNaN($(this).text()) && $(this).text().length != 0 && $(this).closest('tr').css('display') != 'none') {
+                        sum_diff += parseFloat($(this).text());
+                    }
+                })
+                $('#diff_sum').text(sum_diff.toLocaleString());
+            }
+
+        </script>
+    </div>
+}
+

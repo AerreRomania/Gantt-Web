@@ -1,0 +1,324 @@
+﻿@using DlhSoft.Web.Mvc
+@{
+    ViewData["Title"] = "ScheduleChartView";
+}
+
+<link rel="stylesheet" href="~/css/site.css" />
+<link rel="stylesheet" href="~/css/menu.css" />
+@using (Html.BeginForm("ScheduleChartViewDeptAll", "GanttComponents"))
+{
+    <nav class="navbar-expand-lg navbar-light bg-light top-bar">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-1">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <img src="~/img/icons/tools/menu.svg" style="width: 20px; height: 20px; color:white" />
+                    </button>
+                </div>
+                <div class="col-sm-1" style="display: flex;min-width:205px">
+                    @* asp-for="StartDate" *@
+                    <input type="date" name="StartDate" id="StartDate" class="form-control input_user" style="margin-bottom:5px;">
+                </div>
+
+                <div class="col-sm-1 col-xs-4" style="display: flex;min-width: 100px;">
+                    <div class="dpicker">
+                        <button type="submit" name="buttonAccess" class="btn login_btn reloadbtn" asp-area="" asp-controller="GanttComponents" asp-action="ScheduleChartViewStiro" asp-for="StartDate">Reload</button>
+                    </div>
+                </div>
+                <div class="col-sm-1 col-xs-4" style="display:flex;">
+
+                    @Html.DropDownList("CommessaId", new SelectList(ViewBag.Commessa, "CommessaName", "CommessaName"), "Select Commessa", new { @id = "ddlCommessa" })
+                    @Html.Hidden("CommessaName", null, new { @id = "hfCommessaName", @name = "CommessaName" })
+
+                </div>
+            </div>
+
+
+        </div>
+    </nav>
+}
+    <h3>Produzione gantt - Stiro</h3>
+
+    <div class="row">
+        <div class="col-md-12" id="gantt">
+            @(Html.ScheduleChartView(component =>
+        {
+            // Settings.
+            component.Columns[(int)ColumnType.Content].Header = "Linee";
+
+            component.Width = "80%";
+            // Item change action set up (post).
+            component.ItemChangeAction = "UpdateGanttChartItem";
+            component.GridWidth = "8%!important";
+            component.IsGridRowClickTimeScrollingEnabled = false;
+            component.ChartWidth = "92%!important";
+            component.IsGridReadOnly = true;
+            component.AlternativeGridRowCssClass = "grd";
+            //component.MinGridWidth = 150;
+            component.BarMargin = 5;
+            component.IsGridRowClickTimeScrollingEnabled = true;
+            component.HeaderHeight = 45;
+            component.BarCornerRadius = 5;
+            component.IsChartReadOnly = true;
+            component.CurrentTimeLineColor = System.Drawing.Color.Red;
+            component.CurrentTime = GanttWeb.Utils.Common.DefaultStartDate == DateTime.MinValue ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) : GanttWeb.Utils.Common.DefaultStartDate;
+            component.IsNonworkingTimeHighlighted = true;
+            component.TimelineStart = GanttWeb.Utils.Common.DefaultStartDate == DateTime.MinValue ? new DateTime(DateTime.Now.Year,DateTime.Now.Month, 1) : GanttWeb.Utils.Common.DefaultStartDate;
+            component.TimelineFinish = component.TimelineStart.AddMonths(+5);
+
+            component.GridLinesColor = System.Drawing.Color.FromArgb(0xff, 0xea, 0xea, 0xea);
+            component.ContainerCssClass = "containergant";
+            component.SelectedItemCssClass = "selectedItem";
+            component.CellCssClass = "cell";
+            component.ToggleButtonCssClass = "toggleButton";
+            component.ToggleButtonHoveringCssClass = "toggleButtonHovering";
+            component.StandardBarCssClass = "standardBar";
+            component.StandardCompletedBarCssClass = "darkBar";
+            component.SummaryBarCssClass = "darkBar";
+            component.MilestoneBarCssClass = "darkBar";
+            component.AssignmentsCssClass = "assignments";
+            component.DependencyLineCssClass = "dependencyLine";
+
+            component.HeaderBackColor = System.Drawing.Color.FromArgb(1, 224, 224, 224);
+            component.AlternativeRowBackColor = System.Drawing.Color.FromArgb(1, 222, 222, 222);
+
+            component.Height = "500";
+
+            component.ItemTemplateClientCode = @"var contentArray = item.content.split(' ');  var toolTip = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+
+                     var toolTipContent = 'Commessa: ' + contentArray[0] + '\n' + 'Start: ' + item.start.toLocaleString();
+                     if (!item.isMilestone)
+                         toolTipContent += '\n' + 'Finish: ' + item.finish.toLocaleString() + '\n' + 'Carico: ' + contentArray[1] + '\n' + 'Prod qty: ' + contentArray[2] + '\n' + 'DVC: ' + contentArray[3] + '\n' + 'Rdd: ' + contentArray[4];
+                     toolTip.appendChild(document.createTextNode(toolTipContent));
+                     return toolTip;";
+
+            component.Scales = new List<Scale>
+            {
+                new Scale { ScaleType = ScaleType.Months, HeaderTextFormat = ScaleHeaderTextFormat.Month, IsSeparatorVisible = true },
+                new Scale { ScaleType = ScaleType.Weeks,  HeaderTextFormat = ScaleHeaderTextFormat.Date,  IsSeparatorVisible = false, HeaderCssClass="pekson" },
+                new Scale { ScaleType = ScaleType.Days,   HeaderTextFormat = ScaleHeaderTextFormat.Day }
+            };
+            component.HeaderHeight = 21 * 3;
+
+            var dayScale = component.Scales[2];
+            dayScale.ScaleType = ScaleType.Custom;
+            dayScale.HeaderTextFormat = ScaleHeaderTextFormat.Custom;
+            dayScale.Intervals = new SortedDictionary<DlhSoft.Windows.Data.TimeInterval, string>();
+            var today = DateTime.Today;
+            for (var date = component.TimelineStart.Date; date < component.TimelineFinish; date = date.AddDays(1))
+            {
+                component.Scales[2].Intervals.Add(
+                new DlhSoft.Windows.Data.TimeInterval { Start = date, Finish = date.AddDays(1) },
+                string.Format(date == today ? "<span style='color: red;'>{0}</span>" : "{0}", date.ToString("dd")));
+            }
+
+
+        }))
+
+            <style>
+                    .containergant {
+                        font-variant: small-caps;
+                        font-size: 16px;
+                        color: #346;
+                    }
+
+                    .selectedItem {
+                        background-color: #e0e0ff;
+                    }
+
+                    .cell input {
+                        /*height: 24px;*/
+                        width: 100% !important;
+                    }
+
+                        .cell input[type="text"] {
+                            margin: 0 2px;
+                            border-radius: 4px;
+                            /*padding: 4px 6px;*/
+                            /*line-height: 22px;
+                font-size: 16px;*/
+                            color: #555;
+                            width: 100%;
+                            text-transform: uppercase;
+                        }
+
+                            .cell input[type="text"]:focus {
+                                box-shadow: 0px 1px 0px 0px #78c;
+                            }
+
+                    .cell [style*="z-index:"] input {
+                        height: auto;
+                    }
+
+                    .cell {
+                        height: 22px !important;
+                        color: white;
+                        background-color: #323444;
+                        padding: 2px !important;
+                        font-size: 9pt;
+                        background-image: url(../../img/icons/tools/folder.svg);
+                        background-position: left;
+                        background-repeat: no-repeat;
+                        text-align: left;
+                        position: absolute;
+                        margin-top: -10px;
+                        width: 100px;
+                        padding-left: 30px !important;
+                    }
+
+                    .standardBar {
+                        fill: #3eb0c7;
+                        fill-opacity: 0.75;
+                        stroke: #3eb0c7;
+                    }
+
+                    .darkBar {
+                        fill: #3b4160;
+                        stroke: #3b4160;
+                    }
+
+                    .assignments {
+                        font-variant: normal;
+                        font-size: 15px;
+                        fill: #7080c0;
+                    }
+
+                    .alternativeGridItem {
+                        background-color: #f8f8f8;
+                    }
+
+                    .alternativeGridItem-dark {
+                        background-color: #111111;
+                    }
+
+                    .alternativeGridItem-steel {
+                        background-color: #b9cedf;
+                    }
+
+                    .alternativeChartItem {
+                        fill: #f0f0f0;
+                        fill-opacity: 0.5;
+                    }
+
+                    .alternativeChartItem-dark {
+                        background-color: #111111;
+                    }
+
+                    /* Overrides */
+                    body {
+                        margin: 0;
+                    }
+
+                    input {
+                        font-size: 12px;
+                    }
+
+                    /* Dark theme */
+                    .dark input {
+                        color: white;
+                        background-color: black;
+                    }
+
+                        .dark input:disabled {
+                            color: gray;
+                        }
+
+                        .dark input:focus {
+                            color: black;
+                            background-color: white;
+                        }
+
+                #content, form {
+                    background: #efefef;
+                }
+            </style>
+        </div>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+        @{
+
+            <script>
+                $('.pekson').each(function () {
+                    var date = $(this).text();
+                    var newVal = date.split('/');
+                    var year = parseInt(newVal[2], 10);
+                    var day = parseInt(newVal[1], 10);
+                    var month = parseInt(newVal[0], 10);
+                    var dateString = (day < 10 ? "0" : "") + day + "/" + (month < 10 ? "0" : "") + month + "/" + year;
+                    $(this).text(dateString);
+                });
+                console.log('zavrseno1');
+                $('.pekson').each(function () {
+                    var date = $(this).text();
+                    var newVal = date.split('/');
+                    var year = parseInt(newVal[2], 10);
+                    var day = parseInt(newVal[1], 10);
+                    var month = parseInt(newVal[0], 10);
+                    var dateString = (day < 10 ? "0" : "") + day + "/" + (month < 10 ? "0" : "") + month + "/" + year;
+                    $(this).text(dateString);
+                });
+                console.log('zavrseno2');
+
+            var comm = '@TempData["comm"]';
+            $("#ddlCommessa").val(comm).change();
+
+            $("body").on("change", "#ddlCommessa", function () {
+                $("#hfCommessaName").val($(this).find("option:selected").text());
+            });
+
+            var date = '@TempData["checkDate"]';
+
+            var newVal = date.split('/');
+            var year =  parseInt(newVal[2], 10);
+            var day =  parseInt(newVal[1], 10);
+            var month = parseInt(newVal[0], 10);
+            var dateString =  year + "-" + (month < 10 ? "0" : "") + month + "-" + (day < 10 ? "0" : "") + day;
+            $('#StartDate').val(dateString);
+
+
+
+               
+            </script>
+
+
+        }
+
+
+        <script>
+            $(document).ready(function () {
+
+                //$("#gantt").scrollLeft(0);
+
+                $('#gant_stiro').addClass('activee');
+
+
+                $('#carico_lavoro').removeClass('activee');
+                $('#gant_conf').removeClass('activee');
+                $('#gant_tess').removeClass('activee');
+                $('#gant_all').removeClass('activee');
+
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
+                });
+
+
+                //function fdate() {
+                //    $('.pekson').each(function () {
+                //        var date = $(this).text();
+                //        var newVal = date.split('/');
+                //        var year = parseInt(newVal[2], 10);
+                //        var day = parseInt(newVal[1], 10);
+                //        var month = parseInt(newVal[0], 10);
+                //        var dateString = (day < 10 ? "0" : "") + day + "/" + (month < 10 ? "0" : "") + month + "/" + year;
+                //        $(this).text(dateString);
+                //    });
+                //}
+
+                //setTimeout(fdate, 3000);
+
+            })
+
+         
+
+        </script>
+    </div>

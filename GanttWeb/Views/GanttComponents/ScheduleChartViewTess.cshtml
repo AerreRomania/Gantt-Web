@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewData["Title"] = "ScheduleChartViewTess";
+}
+
+
+
+
+<link rel="stylesheet" href="~/css/site.css" />
+<link rel="stylesheet" href="~/css/menu.css" />
+@using (Html.BeginForm("ScheduleChartViewDeptAll", "GanttComponents"))
+{
+    <nav class="navbar-expand-lg navbar-light bg-light top-bar">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-1">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <img src="~/img/icons/tools/menu.svg" style="width: 20px; height: 20px; color:white" />
+                    </button>
+                </div>
+                <div class="col-sm-1" style="display: flex;min-width:205px">
+                    <input type="date" name="StartDate" id="StartDate" class="form-control input_user" style="margin-bottom:5px;">
+                </div>
+
+                <div class="col-sm-1 col-xs-4" style="display: flex;min-width: 100px;">
+                    <div class="dpicker">
+                        <button type="submit" name="buttonAccess" class="btn login_btn reloadbtn" asp-area="" asp-controller="Home" asp-action="Index" asp-for="StartDate">Reload</button>
+                    </div>
+                </div>
+            </div>
+
+            @{
+
+                <script>
+            var date = '@TempData["checkDate"]';
+
+            var newVal = date.split('/');
+            var year =  parseInt(newVal[2], 10);
+            var day =  parseInt(newVal[1], 10);
+            var month = parseInt(newVal[0], 10);
+            var dateString = "20"+ year + "-" + (month < 10 ? "0" : "") + month + "-" + (day < 10 ? "0" : "") + day;
+            $('#StartDate').val(dateString);
+
+                </script>
+
+
+            }
+
+
+        </div>
+    </nav>
+}
+
+
+<h3>Produzione gantt - Tessitura</h3>
+
+<img src="~/img/no_results_found__4x.jpg" draggable="false" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+    
+    
+        $('#gant_tess').addClass('activee');  
+
+        $('#carico_lavoro').removeClass('activee');
+        $('#gant_conf').removeClass('activee');
+        $('#gant_stiro').removeClass('activee');
+        $('#gant_all').removeClass('activee');
+ 
+
+
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+
+    })
+</script>
